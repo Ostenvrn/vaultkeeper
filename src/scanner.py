@@ -28,19 +28,17 @@ class SystemScanner:
             except:
                 result["version"] = "unknown"
             
-            # Конфиги (читаем ключевые файлы)
+            # Конфиги (читаем полностью)
             config_files = [
                 "/etc/nginx/nginx.conf",
-                "/etc/nginx/sites-available/default",
-                "/etc/nginx/sites-available/osten-devops-Notebook"
+                "/etc/nginx/sites-available/default"
             ]
             
             for file_path in config_files:
                 if os.path.exists(file_path):
                     try:
                         with open(file_path, 'r') as f:
-             Updated upstream
-                            result["configs"][file_path] = f.read()  # читаем полностью
+                            result["configs"][file_path] = f.read()
                     except:
                         result["configs"][file_path] = "Ошибка чтения"
         
