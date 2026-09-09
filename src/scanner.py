@@ -74,7 +74,7 @@ class SystemScanner:
                 if os.path.exists(file_path):
                     try:
                         with open(file_path, 'r') as f:
-                            result["configs"][file_path] = f.read(1000)
+                            result["configs"][file_path] = f.read()
                     except:
                         result["configs"][file_path] = "Ошибка чтения"
         
