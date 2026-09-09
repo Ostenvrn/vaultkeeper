@@ -39,11 +39,8 @@ class SystemScanner:
                 if os.path.exists(file_path):
                     try:
                         with open(file_path, 'r') as f:
-<<<<<<< Updated upstream
+             Updated upstream
                             result["configs"][file_path] = f.read()  # читаем полностью
-=======
-                            result["configs"][file_path] = f.read()  # Читаем полностью
->>>>>>> Stashed changes
                     except:
                         result["configs"][file_path] = "Ошибка чтения"
         
