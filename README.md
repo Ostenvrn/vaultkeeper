@@ -84,3 +84,38 @@ Cron	Список cron-задач текущего пользователя
 📄 Лицензия
 
 MIT
+
+
+    Допустим добавляется новая служба (например, sudo apt install postgresql).
+
+    Ты открываешь src/scanner.py и добавляешь новый метод:
+
+python
+
+def check_postgresql(self):
+    result = {"installed": False, "configs": {}, "version": None}
+    
+    # Проверяем наличие
+    try:
+        cmd = subprocess.run(["psql", "--version"], capture_output=True, text=True)
+        if cmd.returncode == 0:
+            result["installed"] = True
+            result["version"] = cmd.stdout.strip()
+            
+            # Читаем конфиг
+            if os.path.exists("/etc/postgresql/14/main/postgresql.conf"):
+                with open("/etc/postgresql/14/main/postgresql.conf", 'r') as f:
+                    result["configs"]["/etc/postgresql/14/main/postgresql.conf"] = f.read()
+    except:
+        result["installed"] = False
+    
+    self.snapshot["services"]["postgresql"] = result
+
+    Добавляешь вызов в scan():
+
+self.check_postgresql()
+print("  ✅ PostgreSQL")
+
+    Запускаешь сканер, проверяешь снапшот.
+
+    Коммитишь изменения в код.
