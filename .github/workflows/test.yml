@@ -1,0 +1,65 @@
+name: CI — Тестирование VaultKeeper
+
+# Когда запускать:
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Запуск вручную из интерфейса GitHub
+
+# Что делать:
+jobs:
+  test:
+    runs-on: ubuntu-latest  # Запускаем на свежей Ubuntu
+
+    steps:
+      # 1. Забираем код
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Устанавливаем Python и зависимости
+      - name: 🐍 Установка Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 📦 Установка зависимостей
+        run: |
+          sudo apt update
+          sudo apt install -y jq curl
+
+      # 3. Создаём тестовое окружение (фейковые конфиги)
+      - name: 🧪 Подготовка тестового окружения
+        run: |
+          # Создаём фейковые конфиги, чтобы тесты проходили
+          sudo mkdir -p /etc/nginx/sites-available
+          echo "user www-data; worker_processes auto;" | sudo tee /etc/nginx/nginx.conf
+          echo "server { listen 80; }" | sudo tee /etc/nginx/sites-available/default
+          
+          sudo mkdir -p /etc/ssh
+          echo "Port 22" | sudo tee /etc/ssh/sshd_config
+
+      # 4. Запускаем тесты
+      - name: 🧪 Запуск тестов
+        run: |
+          python3 test_scanner.py
+
+      # 5. (Опционально) Проверяем, что скрипты запускаются без ошибок
+      - name: 🔍 Проверка сканера
+        run: |
+          python3 src/scanner.py
+
+      # 6. Проверяем синтаксис Bash-скриптов
+      - name: 🛠 Проверка Bash-скриптов
+        run: |
+          bash -n restore.sh
+          bash -n run.sh
+
+      # 7. Сохраняем снапшот как артефакт (можно скачать после теста)
+      - name: 📸 Сохранение снапшота
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-snapshot
+          path: snapshots/
