@@ -1,3 +1,31 @@
-snapshots/*.json
-*.log
+# ============================================
+# .gitignore для vaultkeeper
+# ============================================
+
+# --- Python ---
 __pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# --- Автоматические снапшоты и логи (не коммитим) ---
+snapshots/
+logs/
+*.log
+
+# --- Секреты ---
+.env
+.env.*
+!.env.example
+
+# --- Бэкапы конфигов ---
+*.bak
+*.bak.*
+
+# --- IDE и OS ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
