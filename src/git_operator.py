@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
+"""
+git_operator.py — коммит и пуш снапшотов в git.
+
+Работает только если git установлен и доступен.
+В контейнере git обычно НЕ нужен — коммит делает хост.
+"""
+
 import datetime
 import os
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -10,8 +18,16 @@ class GitOperator:
         self.repo_path = Path(repo_path).resolve()
         self.snapshots_dir = self.repo_path / "snapshots"
 
+    def _git_available(self):
+        """Проверяет, установлен ли git в системе"""
+        return shutil.which("git") is not None
+
     def commit_snapshot(self, snapshot_file):
         """Делает коммит нового снапшота"""
+        if not self._git_available():
+            print("ℹ️ git не установлен, коммит пропущен")
+            return False
+
         os.chdir(self.repo_path)
 
         # Добавляем файл в Git
@@ -38,6 +54,10 @@ class GitOperator:
 
     def push(self):
         """Пуш на удаленный репозиторий (если есть)"""
+        if not self._git_available():
+            print("ℹ️ git не установлен, пуш пропущен")
+            return False
+
         try:
             # Проверяем, есть ли удаленный репозиторий
             result = subprocess.run(
@@ -56,6 +76,11 @@ class GitOperator:
 
 
 if __name__ == "__main__":
+    # Проверяем git до всего остального
+    if not shutil.which("git"):
+        print("ℹ️ git не установлен, пропускаю коммит")
+        exit(0)
+
     # Ищем последний снапшот
     snapshots_dir = Path("snapshots")
     if not snapshots_dir.exists():
